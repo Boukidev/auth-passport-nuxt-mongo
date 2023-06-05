@@ -10,5 +10,5 @@ export default defineNuxtConfig({
       },
     },
   },
-  // modules: ["nuxt-mongoose"],
+  modules: ["nuxt-icon"],
 });
