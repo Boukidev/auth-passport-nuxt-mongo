@@ -1,10 +1,10 @@
-import { useVuelidate } from '@vuelidate/core';
 <template>
   <main class="main">
     <h1 class="title-h1">Sign-in</h1>
-    <form class="form-login" @submit.prevent="submitForm()">
+    <form class="form-signin" @submit.prevent="submitForm()">
       <div class="form-group">
         <label for="email" class="form-label">E-mail address</label>
+        <Icon class="email-icon" name="fluent:person-12-filled" />
         <input
           type="email"
           name="email"
@@ -19,11 +19,28 @@ import { useVuelidate } from '@vuelidate/core';
           @change="v$.email.$touch"
           required
         />
-        <!-- <span class="form-error">{{ rules.email.required.$message }}</span> -->
+        <span class="form-error" v-if="v$.email.$error">Invalid email</span>
       </div>
       <div class="form-group">
         <label for="password" class="form-label">Password</label>
+        <Icon class="password-icon" name="fluent:lock-closed-12-filled" />
         <input
+          v-if="showPass"
+          type="text"
+          name="password"
+          id="password"
+          class="form-input"
+          :class="{
+            'border-bottom-red': v$.password.$error,
+            'border-bottom-primary': !v$.password.$invalid,
+          }"
+          placeholder="Type your password"
+          v-model="formData.password"
+          @change="v$.password.$touch"
+          required
+        />
+        <input
+          v-else
           type="password"
           name="password"
           id="password"
@@ -37,10 +54,18 @@ import { useVuelidate } from '@vuelidate/core';
           @change="v$.password.$touch"
           required
         />
-        <!-- <span class="form-error">{{ rules.password.required.$message }}</span> -->
+        <button v-if="showPass" class="btn btn-eye" @click="togglePass()">
+          <Icon class="eye-icon" name="fluent:eye-off-16-filled" />
+        </button>
+        <button v-else class="btn btn-eye" @click="togglePass()">
+          <Icon class="eye-icon" name="fluent:eye-12-filled" />
+        </button>
+        <span class="form-error" v-if="v$.password.$error">
+          Invalid password
+        </span>
       </div>
       <div class="redirect-reset-password">
-        <nuxt-link to="/auth/reset-password">Forgot password?</nuxt-link>
+        <nuxt-link to="/auth/reset-password">Forgot password ?</nuxt-link>
       </div>
       <div class="form-group">
         <input type="submit" class="btn btn-submit" value="Submit" />
@@ -56,48 +81,32 @@ import { useVuelidate } from '@vuelidate/core';
 
 <script lang="ts" setup>
 import { useVuelidate } from "@vuelidate/core";
-import {
-  required,
-  email,
-  sameAs,
-  minLength,
-  helpers,
-} from "@vuelidate/validators";
+import { required, email, minLength } from "@vuelidate/validators";
+
+const showPass = ref(false);
+const togglePass = () => {
+  showPass.value = !showPass.value;
+};
 
 const formData = reactive({
   email: "",
   password: "",
-  confirmPassword: null,
 });
-
 const rules = computed(() => {
   return {
-    email: {
-      required: helpers.withMessage("The email field is required", required),
-      email: helpers.withMessage("Invalid email format", email),
-    },
-    password: {
-      required: helpers.withMessage("The password field is required", required),
-      minLength: minLength(8),
-    },
-    confirmPassword: {
-      required: helpers.withMessage(
-        "The password confirmation field is required",
-        required
-      ),
-      sameAs: helpers.withMessage(
-        "Passwords don't match",
-        sameAs(formData.password)
-      ),
-    },
+    email: { required, email },
+    password: { required, minLength: minLength(8) },
   };
 });
-
 const v$ = useVuelidate(rules, formData);
-const submitForm = () => {
-  v$.value.$validate();
-
-  if (v$.value.$error) alert("erreur formulaire");
+const submitForm = async () => {
+  const isFormCorrect = await v$.value.$validate();
+  if (!isFormCorrect) {
+    console.log("validation incorrect");
+  } else {
+    console.log("validation vérifié");
+  }
+  return 1;
 };
 </script>
 
@@ -113,12 +122,13 @@ const submitForm = () => {
   text-align: center;
   text-transform: capitalize;
 }
-.form-login {
+.form-signin {
   margin: 1rem 0;
 }
 .form-group {
   display: flex;
   flex-direction: column;
+  position: relative;
 }
 .form-label {
   margin-bottom: 0.25rem;
@@ -127,15 +137,12 @@ const submitForm = () => {
 }
 .form-input {
   margin-bottom: 1rem;
-  padding: 0.5rem;
+  padding: 0.5rem 1.5rem;
   background-color: $light-gray;
   border: 2px solid transparent;
-  border-bottom: 2.5px solid $gray;
+  border-bottom: 2.5px solid $primary;
   outline: none;
   transition: border-bottom ease-in-out 0.3s;
-  &:focus {
-    border-bottom: 2.5px solid $primary;
-  }
 }
 .border-bottom-red {
   border-bottom: 2.5px solid red;
@@ -143,22 +150,31 @@ const submitForm = () => {
 .border-bottom-primary {
   border-bottom: 2.5px solid $primary;
 }
+.icon {
+  position: absolute;
+  top: 2.15rem;
+  left: 0.25rem;
+}
+.eye-icon {
+  left: initial;
+  right: 0.25rem;
+}
 .form-error {
-  position: relative;
-  top: -1rem;
+  position: absolute;
+  bottom: -0.25rem;
+  font-size: 13px;
   color: red;
 }
 .redirect-reset-password {
   display: flex;
   justify-content: flex-end;
   align-items: center;
+  margin-bottom: 1rem;
   a:hover {
     text-decoration: underline;
-    color: $primary;
   }
 }
 .btn-submit {
-  margin-top: 1.5rem;
   padding: 0.75rem;
   color: $white;
   background-color: $primary;
@@ -169,11 +185,10 @@ const submitForm = () => {
   }
 }
 .divider {
-  height: 2px;
+  height: 1px;
   width: 100%;
-  margin: 1rem auto;
+  margin: 1.5rem auto;
   background: linear-gradient(90deg, $white, $primary, $white);
-  border-radius: 5px;
 }
 .redirect-signup {
   text-align: center;
