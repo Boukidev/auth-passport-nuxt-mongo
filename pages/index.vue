@@ -6,7 +6,7 @@
       built with Nuxt 3, a JavaScript framework based on Vue.js, and MongoDB, a
       flexible and scalable NoSQL database.
     </p>
-    <nuxt-link to="/auth/signin">Sign-in</nuxt-link>
+    <nuxt-link to="/auth/signin">Authenticate</nuxt-link>
   </main>
 </template>
 
@@ -31,7 +31,6 @@ a {
   background-color: $primary;
   color: #f1f1f1;
   border-radius: 3px;
-  text-transform: uppercase;
   &:hover {
     background-color: $primary-hover;
   }
