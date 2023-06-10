@@ -18,6 +18,7 @@
           v-model="formData.email"
           @change="v$.email.$touch"
           required
+          autofocus
         />
         <span class="form-error" v-if="v$.email.$error">Invalid email</span>
       </div>
@@ -60,7 +61,7 @@
         <button v-else class="btn btn-eye" @click="togglePass()">
           <Icon class="eye-icon" name="fluent:eye-12-filled" />
         </button>
-        <span class="form-error" v-if="v$.password.$error">
+        <span class="form-error password-error" v-if="v$.password.$error">
           Invalid password
         </span>
       </div>
@@ -161,9 +162,12 @@ const submitForm = async () => {
 }
 .form-error {
   position: absolute;
-  bottom: -0.25rem;
+  bottom: 0;
   font-size: 13px;
   color: red;
+}
+.password-error {
+  bottom: 1rem;
 }
 .redirect-reset-password {
   display: flex;
