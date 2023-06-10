@@ -18,6 +18,7 @@
           @change="v$.username.$touch"
           placeholder="Type your username address"
           required
+          autofocus
         />
         <span class="form-error" v-if="v$.username.$error">
           Username is required
@@ -243,7 +244,7 @@ const validatePass = () => {
 
 <style lang="scss" scoped>
 .main {
-  margin-top: 1.5rem;
+  margin: 1.5rem auto;
   padding: 4rem 3rem 2rem;
   border-radius: 10px;
   background-color: $white;

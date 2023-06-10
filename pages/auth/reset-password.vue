@@ -36,6 +36,7 @@
           @change="v$.password.$touch"
           @input="validatePass()"
           required
+          autofocus
         />
         <button v-if="showPass" class="btn btn-eye" @click="togglePass()">
           <Icon class="eye-icon" name="fluent:eye-off-16-filled" />
